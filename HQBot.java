@@ -52,6 +52,11 @@ public class HQBot extends Bot {
             return;
         }
 
+        int nukeRounds = readBroadcastSecure(Slot.NUKE_ROUNDS, 0);
+        if (Upgrade.NUKE.numRounds - nukeRounds == 2300 - Clock.getRoundNum()) {
+            rc.researchUpgrade(Upgrade.NUKE);
+            return;
+        }
         // upgrade maybe?
         int shouldUpgrade = readBroadcastSecure(Slot.SHOULD_UPGRADE, 0);
         if (shouldUpgrade > 0 && soldierCount >= DESIRED_ARMY_SIZE/2) {
@@ -81,13 +86,7 @@ public class HQBot extends Bot {
 
             if (rc.canMove(dir)) {
                 rc.spawn(dir);
-                int nukeRounds = readBroadcastSecure(Slot.NUKE_ROUNDS, 0);
-                if (Clock.getRoundNum() >= 2000 - (Upgrade.NUKE.numRounds - nukeRounds)) {
-                    broadcastSecure(Slot.NUKE_ROUNDS, nukeRounds + 1);
-                    broadcastSecure(Slot.SHOULD_UPGRADE, (Upgrade.NUKE.numRounds - nukeRounds));
-                } else {
-                    broadcastSecure(Slot.SHOULD_UPGRADE, 2);
-                }
+                broadcastSecure(Slot.SHOULD_UPGRADE, 3);
                 return true;
             }
 

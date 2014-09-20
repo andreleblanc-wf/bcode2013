@@ -40,7 +40,7 @@ public class SoldierBot extends Bot {
 
     private void turtle() throws GameActionException {
         Direction away = myHqLocation.directionTo(myLocation);
-        if (Math.random() < 0.1 && rc.senseEncampmentSquare(myLocation)) {
+        if (Math.random() < 0.33 && rc.senseEncampmentSquare(myLocation)) {
             claimEncampment();
             return;
         }
@@ -85,7 +85,7 @@ public class SoldierBot extends Bot {
         if (alliedEncampents.length % 2 == 0) {
             type = RobotType.SUPPLIER;
         }
-        if (alliedEncampents.length > 4 && Math.random() < 0.5) {
+        if (alliedEncampents.length > 4 || Clock.getRoundNum() > 400) {
             type = RobotType.ARTILLERY;
         }
 

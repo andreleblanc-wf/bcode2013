@@ -6,7 +6,7 @@ import battlecode.common.*;
 public class HQBot extends Bot {
 
     MapLocation target = null;
-    protected int DESIRED_ARMY_SIZE = 24;
+    protected int DESIRED_ARMY_SIZE = 32;
     // number of rounds we've been attacking enemy HQ.
     protected int chargeRounds;
 

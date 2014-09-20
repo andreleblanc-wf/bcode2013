@@ -41,6 +41,10 @@ public class SoldierBot extends Bot {
     private void turtle() throws GameActionException {
         Direction away = myHqLocation.directionTo(myLocation);
         if (myLocation.isAdjacentTo(myHqLocation)) {
+            if (rc.senseMine(myLocation) == null) {
+                rc.layMine();
+                return;
+            }
             // move away from HQ;
             tryMove(away, true);
         } else if (myHqLocation.distanceSquaredTo(myLocation) <= 9) {
@@ -51,8 +55,15 @@ public class SoldierBot extends Bot {
                 tryMove(away, true);
             } else {
                 // stay put.
+                if (rc.senseMine(myLocation) == null) {
+                    rc.layMine();
+                    return;
+                }
             }
-        } else {
+        } else if (rc.senseMine(myLocation) == null) {
+            rc.layMine();
+            return;
+        } else if (Math.random() < 0.5) {
             tryMove(away.opposite(), true);
         }
     }

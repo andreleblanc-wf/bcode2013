@@ -58,4 +58,16 @@ public class Util {
         } catch (GameActionException ex) {}
         return false;
     }
+
+    public static void shuffleDirections(Direction[] ar) {
+
+        for (int i = ar.length - 1; i > 0; i --) {
+            int index = roll(i + 1);
+            // Simple swap
+            Direction a = ar[index];
+            ar[index] = ar[i];
+            ar[i] = a;
+        }
+
+    }
 }

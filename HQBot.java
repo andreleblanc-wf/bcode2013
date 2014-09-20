@@ -6,7 +6,7 @@ import battlecode.common.*;
 public class HQBot extends Bot {
 
     MapLocation target = null;
-    protected int DESIRED_ARMY_SIZE = 32;
+    protected int DESIRED_ARMY_SIZE = 28;
     // number of rounds we've been attacking enemy HQ.
     protected int chargeRounds;
 
@@ -53,7 +53,10 @@ public class HQBot extends Bot {
         }
 
         int nukeRounds = readBroadcastSecure(Slot.NUKE_ROUNDS, 0);
-        if (Upgrade.NUKE.numRounds - nukeRounds == 2300 - Clock.getRoundNum()) {
+        int nukeRoundsRemaining = Upgrade.NUKE.numRounds - nukeRounds;
+        int tooLate = 2500 - nukeRoundsRemaining;
+        int tooEarly = tooLate - 1000;
+        if (Clock.getRoundNum() < tooLate && Clock.getRoundNum() > tooEarly) {
             rc.researchUpgrade(Upgrade.NUKE);
             return;
         }
@@ -71,7 +74,7 @@ public class HQBot extends Bot {
         if (Clock.getBytecodesLeft() < 1000) {
             return false;
         }
-        if (rc.getTeamPower() < soldierCount * 2) {
+        if (rc.getTeamPower() < (soldierCount + alliedEncampents.length) * 2) {
             return false;
         }
         MapLocation loc;

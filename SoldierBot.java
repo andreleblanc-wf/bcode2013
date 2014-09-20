@@ -2,8 +2,11 @@ package team028;
 
 import battlecode.common.*;
 
+import java.util.Arrays;
+
 public class SoldierBot extends Bot {
 
+    private static final int CAMP_SEARCH_CAP = 12;
     protected MapLocation target;
 
     public SoldierBot(Robot robot, int robotId, Team team, RobotType robotType, RobotController rc) {
@@ -26,6 +29,7 @@ public class SoldierBot extends Bot {
         }
 
         rc.setIndicatorString(0, "Target: " + target);
+
         if (target.equals(myHqLocation)) {
             turtle();
         } else {
@@ -40,9 +44,24 @@ public class SoldierBot extends Bot {
 
     private void turtle() throws GameActionException {
         Direction away = myHqLocation.directionTo(myLocation);
-        if (Math.random() < 0.33 && rc.senseEncampmentSquare(myLocation)) {
-            claimEncampment();
+        if (rc.senseEncampmentSquare(myLocation) && claimEncampment()) {
             return;
+        } else if (Math.random() > 0.75) {
+            MapLocation[] campLocs = rc.senseEncampmentSquares(myLocation, 9, Team.NEUTRAL);
+            if (campLocs.length < CAMP_SEARCH_CAP) {
+                Util.sortLocationsByNearest(campLocs, myLocation);
+            } else {
+                campLocs = Arrays.copyOf(campLocs, CAMP_SEARCH_CAP);
+            }
+
+            for (MapLocation loc: campLocs) {
+                if (loc.equals(myLocation)) {
+                    continue;
+                }
+                if (tryMove(myLocation.directionTo(loc), true)) {
+                    return;
+                }
+            }
         }
         if (myLocation.isAdjacentTo(myHqLocation)) {
             if (rc.senseMine(myLocation) == null) {

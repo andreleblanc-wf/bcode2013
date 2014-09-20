@@ -23,6 +23,9 @@ public abstract class Bot implements IBot {
 
     protected RobotInfo myRobotInfo = null;
 
+    protected MapLocation[] alliedEncampents;
+    protected MapLocation[] allEncampments;
+
     protected double myHealth;
 
     protected static final Direction[] ALL_DIRECTIONS = new Direction[] {

@@ -10,15 +10,9 @@ public class HQBot extends Bot {
     // number of rounds we've been attacking enemy HQ.
     protected int chargeRounds;
 
-    protected MapLocation[] alliedEncampents;
-    protected MapLocation[] allEncampments;
-
     // the order of upgrades. this should probably be dynamic.
     Upgrade[] upgrades = new Upgrade[] {
-            Upgrade.VISION,
             Upgrade.PICKAXE,
-            Upgrade.FUSION,
-            Upgrade.DEFUSION,
             Upgrade.NUKE
     };
 
@@ -59,16 +53,19 @@ public class HQBot extends Bot {
         }
 
         // upgrade maybe?
-        if (Math.random() < 0.1) {
-            if (!tryUpgrade()) {
-                trySpawn();
-            }
+        int shouldUpgrade = readBroadcastSecure(Slot.SHOULD_UPGRADE, 0);
+        if (shouldUpgrade > 0 && soldierCount >= DESIRED_ARMY_SIZE/2) {
+            broadcastSecure(Slot.SHOULD_UPGRADE, shouldUpgrade - 1);
+            tryUpgrade();
         } else if (!trySpawn()) {
             tryUpgrade();
         }
     }
 
     private boolean trySpawn() throws GameActionException {
+        if (Clock.getBytecodesLeft() < 1000) {
+            return false;
+        }
         if (rc.getTeamPower() < soldierCount * 2) {
             return false;
         }
@@ -77,14 +74,23 @@ public class HQBot extends Bot {
         Util.shuffleDirections(allDirections);
         for (Direction dir: allDirections) {
             loc = myHqLocation.add(dir);
-            if (Clock.getBytecodesLeft() < 100) {
-                return false;
-            }
+
             if (hasEnemyMine(loc) || rc.senseObjectAtLocation(loc) != null) {
                 continue;
             }
-            rc.spawn(dir);
-            return true;
+
+            if (rc.canMove(dir)) {
+                rc.spawn(dir);
+                int nukeRounds = readBroadcastSecure(Slot.NUKE_ROUNDS, 0);
+                if (Clock.getRoundNum() >= 2000 - (Upgrade.NUKE.numRounds - nukeRounds)) {
+                    broadcastSecure(Slot.NUKE_ROUNDS, nukeRounds + 1);
+                    broadcastSecure(Slot.SHOULD_UPGRADE, (Upgrade.NUKE.numRounds - nukeRounds));
+                } else {
+                    broadcastSecure(Slot.SHOULD_UPGRADE, 2);
+                }
+                return true;
+            }
+
         }
         return false;
     }

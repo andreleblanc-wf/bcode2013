@@ -40,6 +40,10 @@ public class SoldierBot extends Bot {
 
     private void turtle() throws GameActionException {
         Direction away = myHqLocation.directionTo(myLocation);
+        if (Math.random() < 0.1 && rc.senseEncampmentSquare(myLocation)) {
+            claimEncampment();
+            return;
+        }
         if (myLocation.isAdjacentTo(myHqLocation)) {
             if (rc.senseMine(myLocation) == null) {
                 rc.layMine();
@@ -66,6 +70,30 @@ public class SoldierBot extends Bot {
         } else if (Math.random() < 0.5) {
             tryMove(away.opposite(), true);
         }
+    }
+
+    private boolean claimEncampment() throws GameActionException {
+        if (myLocation.isAdjacentTo(myHqLocation)) {
+            return false;
+        } else if (myLocation.distanceSquaredTo(myHqLocation) < 25 && myHqLocation.directionTo(enemyHqLocation) == myHqLocation.directionTo(myLocation)) {
+            return false;
+        }
+
+        RobotType type = RobotType.GENERATOR;
+        allEncampments = rc.senseAllEncampmentSquares();
+        alliedEncampents = rc.senseAlliedEncampmentSquares();
+        if (alliedEncampents.length % 2 == 0) {
+            type = RobotType.SUPPLIER;
+        }
+        if (alliedEncampents.length > 4 && Math.random() < 0.5) {
+            type = RobotType.ARTILLERY;
+        }
+
+        if (rc.getTeamPower() > rc.senseCaptureCost()) {
+            rc.captureEncampment(type);
+            return true;
+        }
+        return false;
     }
 
 

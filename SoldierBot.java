@@ -30,8 +30,14 @@ public class SoldierBot extends Bot {
 
         rc.setIndicatorString(0, "Target: " + target);
 
-        if (target.equals(myHqLocation)) {
+        boolean pastPointofNoReturn = myLocation.distanceSquaredTo(enemyHqLocation) < 36;
+
+        if (target.equals(myHqLocation) && !pastPointofNoReturn) {
             turtle();
+        } else if (pastPointofNoReturn) {
+            if (tryMove(myLocation.directionTo(enemyHqLocation), true)) {
+                return;
+            }
         } else {
             if (!myLocation.isAdjacentTo(target)) {
                 tryMove(myLocation.directionTo(target), true);
@@ -70,7 +76,7 @@ public class SoldierBot extends Bot {
             }
             // move away from HQ;
             tryMove(away, true);
-        } else if (myHqLocation.distanceSquaredTo(myLocation) <= 9) {
+        } else if (myHqLocation.distanceSquaredTo(myLocation) <= 16) {
             // check for an ally directly behind you (towards HQ)
             // and move forward (away from HQ) if there is one.
             Robot behindMe = (Robot) rc.senseObjectAtLocation(myLocation.add(away.opposite()));

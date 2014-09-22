@@ -34,15 +34,10 @@ public class HQBot extends Bot {
         target = selectNearestEnemy(getMaxAttackRange());
 
         if (target == null) {
-            if (soldierCount >= DESIRED_ARMY_SIZE || (chargeRounds > 0 && soldierCount > DESIRED_ARMY_SIZE / 2)) {
-                broadcastSecure(Slot.CHARGE_ROUNDS, chargeRounds + 1);
-                target = enemyHqLocation;
-            } else {
-                // turtle tactic.
-                chargeRounds = 0;
-                broadcastSecure(Slot.CHARGE_ROUNDS, 0);
-                target = myHqLocation;
-            }
+            // turtle tactic.
+            chargeRounds = 0;
+            broadcastSecure(Slot.CHARGE_ROUNDS, 0);
+            target = myHqLocation;
         }
         rc.setIndicatorString(0, "Target: " + target);
         broadcastSecure(Slot.TARGET, Util.mapLocationToInt(target));
@@ -52,14 +47,6 @@ public class HQBot extends Bot {
             return;
         }
 
-        int nukeRounds = readBroadcastSecure(Slot.NUKE_ROUNDS, 0);
-        int nukeRoundsRemaining = Upgrade.NUKE.numRounds - nukeRounds;
-        int tooLate = 2500 - nukeRoundsRemaining;
-        int tooEarly = tooLate - 1000;
-        if (Clock.getRoundNum() < tooLate && Clock.getRoundNum() > tooEarly) {
-            rc.researchUpgrade(Upgrade.NUKE);
-            return;
-        }
         // upgrade maybe?
         int shouldUpgrade = readBroadcastSecure(Slot.SHOULD_UPGRADE, 0);
         if (shouldUpgrade > 0 && soldierCount >= DESIRED_ARMY_SIZE/2) {
@@ -89,7 +76,7 @@ public class HQBot extends Bot {
 
             if (rc.canMove(dir)) {
                 rc.spawn(dir);
-                broadcastSecure(Slot.SHOULD_UPGRADE, 3);
+                broadcastSecure(Slot.SHOULD_UPGRADE, 10);
                 return true;
             }
 

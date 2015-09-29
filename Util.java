@@ -1,16 +1,30 @@
-package team028;
+package team006;
 
-import battlecode.common.*;
+import battlecode.common.Direction;
+import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
+import battlecode.common.RobotController;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
-import java.util.Random;
+import java.util.List;
 
 public class Util {
 
     protected static final int CHECK_ADD = 691;
 
+
+    public static void sortLocationsByNearest(List<MapLocation> arr, final MapLocation loc) {
+
+        Collections.sort(arr, new Comparator<MapLocation>() {
+            @Override
+            public int compare(MapLocation o1, MapLocation o2) {
+                return o1.distanceSquaredTo(loc) - o2.distanceSquaredTo(loc);
+            }
+        });
+
+    }
 
     public static void sortLocationsByNearest(MapLocation[] arr, final MapLocation loc) {
 
@@ -38,8 +52,8 @@ public class Util {
     public static int readBroadcastSecure(RobotController rc, int slot, int defaultValue) {
         int val;
         try {
-            val = rc.readBroadcast(slot);
-            int check = rc.readBroadcast(slot + 32767);
+            val = rc.readBroadcast(Slot.get(slot));
+            int check = rc.readBroadcast(Slot.get(slot) + 32767);
             if (val + CHECK_ADD != check) {
                 val = defaultValue;
                 //broadcastSecure(rc, slot, defaultValue);
@@ -52,8 +66,8 @@ public class Util {
 
     public static boolean broadcastSecure(RobotController rc, int slot, int val) {
         try {
-            rc.broadcast(slot, val);
-            rc.broadcast(slot + 32767, val + CHECK_ADD);
+            rc.broadcast(Slot.get(slot), val);
+            rc.broadcast(Slot.get(slot) + 32767, val + CHECK_ADD);
             return true;
         } catch (GameActionException ex) {}
         return false;
@@ -69,5 +83,14 @@ public class Util {
             ar[i] = a;
         }
 
+    }
+
+    public static boolean mapLocationInArray(MapLocation target, MapLocation[] mines) {
+        for (MapLocation loc: mines) {
+            if (loc.equals(target)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

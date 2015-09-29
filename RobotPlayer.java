@@ -1,4 +1,4 @@
-package team028;
+package team006;
 
 import battlecode.common.*;
 
@@ -51,6 +51,7 @@ public class RobotPlayer {
             } catch (GameActionException e) {
                 e.printStackTrace();
             }
+            bot.jam();
             rc.yield();
         }
 

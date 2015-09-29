@@ -1,4 +1,4 @@
-package team028;
+package team006;
 
 import battlecode.common.*;
 
@@ -47,9 +47,9 @@ public abstract class Bot implements IBot {
         return Util.broadcastSecure(rc, slot, val);
     }
 
-
     protected boolean hasEnemyMine(MapLocation loc) {
         Team team = rc.senseMine(loc);
+
         return team == Team.NEUTRAL || team == opponentTeam;
     }
 
@@ -71,8 +71,10 @@ public abstract class Bot implements IBot {
     }
 
 
-    public MapLocation selectNearestEnemy(int range) throws GameActionException {
-        Robot[] enemies = rc.senseNearbyGameObjects(Robot.class, myLocation, range*range, opponentTeam);
+    public MapLocation selectNearestEnemy(int range, Robot[] enemies) throws GameActionException {
+        if (enemies == null) {
+            enemies = rc.senseNearbyGameObjects(Robot.class, myLocation, range*range, opponentTeam);
+        }
         MapLocation nearest = null;
         int nearestDistSq = -1;
         int distSq = -1;
@@ -91,6 +93,22 @@ public abstract class Bot implements IBot {
         return nearest;
     }
 
+    public void jam() {
+        int jams = 0;
+        double remainingPower = rc.getTeamPower();
+        while (Clock.getBytecodesLeft() > 5000 && remainingPower > 100) {
+            jams += 1;
+            int slot = Slot.getJamChannel();
+            try {
+                rc.broadcast(slot, -1);
+                rc.broadcast(slot + 32767, -1);
+                remainingPower -= GameConstants.BROADCAST_SEND_COST * 2;
+            } catch (GameActionException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
     public void go() throws GameActionException {
         // keep this up to date each turn
         myRobotInfo = rc.senseRobotInfo(myRobot);
